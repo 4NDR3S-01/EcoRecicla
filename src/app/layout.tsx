@@ -26,30 +26,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
-      <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                try {
-                  var darkMode = localStorage.getItem('eco-dark-mode');
-                  if (darkMode === 'true') {
-                    document.documentElement.classList.add('dark');
-                  } else if (darkMode === 'false') {
-                    document.documentElement.classList.remove('dark');
-                  } else {
-                    // Si no hay configuración, no hacer nada (modo claro por defecto)
-                    document.documentElement.classList.remove('dark');
-                  }
-                } catch (e) {
-                  // En caso de error, asegurar modo claro
-                  document.documentElement.classList.remove('dark');
-                }
-              })();
-            `,
-          }}
-        />
-      </head>
+      <head />
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white dark:bg-gray-950 text-green-900 dark:text-green-100 transition-colors duration-500`}
       >

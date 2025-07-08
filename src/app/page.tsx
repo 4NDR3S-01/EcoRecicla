@@ -38,7 +38,7 @@ export default function Home() {
           <h1 id="main-title" className="text-3xl sm:text-4xl md:text-6xl font-extrabold text-green-800 mb-4 text-center tracking-tight dark:text-green-200 animate-fade-in drop-shadow-lg">
             {h.welcome}
           </h1>
-          <p className="text-base sm:text-lg md:text-2xl text-green-900 mb-8 max-w-2xl text-center font-medium dark:text-green-100 animate-fade-in delay-100 drop-shadow">
+          <p className="text-base sm:text-lg md:text-2xl text-green-900 mb-8 max-w-2xl text-center font-medium dark:text-green-100">
             {h.description}
           </p>
           <Link href="/registro">
