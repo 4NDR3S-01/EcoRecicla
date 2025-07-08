@@ -2,9 +2,10 @@
 import Link from "next/link";
 import React, { useState } from "react";
 import { useAppContext } from "./AppProvider";
+import type { ThemeMode } from "./AppProvider";
 
 export default function Header() {
-  const { lang, setLang, themeMode, setThemeMode, darkMode, translations, isHydrated } = useAppContext();
+  const { lang, setLang, themeMode, setThemeMode, translations, isHydrated } = useAppContext();
   const t = translations[lang];
   const [menuOpen, setMenuOpen] = useState(false);
   
@@ -39,7 +40,7 @@ export default function Header() {
             <>
               <select
                 value={themeMode}
-                onChange={e => setThemeMode(e.target.value)}
+                onChange={e => setThemeMode(e.target.value as ThemeMode)}
                 className="mr-2 px-2 py-1 rounded bg-green-50 dark:bg-gray-800 border border-green-200 dark:border-gray-700 text-green-900 dark:text-green-100 focus:outline-none focus:ring-2 focus:ring-green-400"
                 aria-label="Seleccionar modo de tema"
               >
@@ -90,9 +91,10 @@ export default function Header() {
             <div className="flex gap-3 mt-4">
               {isHydrated && (
                 <>
+                
                   <select
                     value={themeMode}
-                    onChange={e => setThemeMode(e.target.value)}
+                    onChange={e => setThemeMode(e.target.value as ThemeMode)} 
                     className="mr-2 px-2 py-1 rounded bg-green-50 dark:bg-gray-800 border border-green-200 dark:border-gray-700 text-green-900 dark:text-green-100 focus:outline-none focus:ring-2 focus:ring-green-400"
                     aria-label="Seleccionar modo de tema"
                   >

@@ -2,7 +2,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 
 type Lang = "es" | "en";
-type ThemeMode = "light" | "dark" | "system";
+export type ThemeMode = "light" | "dark" | "system";
 
 const translations = {
   es: {
@@ -80,8 +80,6 @@ export function AppProvider({ children }: Readonly<{ children: React.ReactNode }
     if (themeMode === "dark") isDark = true;
     else if (themeMode === "light") isDark = false;
     else isDark = getSystemDark();
-    
-    console.log('Theme mode changed:', themeMode, 'isDark:', isDark);
     setDarkMode(isDark);
     localStorage.setItem("eco-theme-mode", themeMode);
   }, [themeMode, isHydrated]);
@@ -89,7 +87,6 @@ export function AppProvider({ children }: Readonly<{ children: React.ReactNode }
   // Aplica la clase 'dark' en <html> cuando cambia darkMode
   useEffect(() => {
     if (!isHydrated) return;
-    console.log('Applying dark mode:', darkMode);
     if (darkMode) {
       document.documentElement.classList.add("dark");
     } else {
