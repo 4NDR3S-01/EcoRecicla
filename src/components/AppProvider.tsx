@@ -9,6 +9,8 @@ const translations = {
     menu: [
       { href: "/", label: "Inicio", icon: "🏠" },
       { href: "/sobre-nosotros", label: "Sobre nosotros", icon: "ℹ️" },
+      { href: "/ayuda", label: "Ayuda", icon: "❓" },
+      { href: "/busqueda", label: "Búsqueda", icon: "🔍" },
       { href: "/contacto", label: "Contacto", icon: "✉️" },
       { href: "/login", label: "Inicio de sesión", icon: "🔑" },
       { href: "/registro", label: "Registrarse", icon: "📝" },
@@ -19,6 +21,8 @@ const translations = {
     menu: [
       { href: "/", label: "Home", icon: "🏠" },
       { href: "/sobre-nosotros", label: "About us", icon: "ℹ️" },
+      { href: "/ayuda", label: "Help", icon: "❓" },
+      { href: "/busqueda", label: "Search", icon: "🔍" },
       { href: "/contacto", label: "Contact", icon: "✉️" },
       { href: "/login", label: "Sign in", icon: "🔑" },
       { href: "/registro", label: "Sign up", icon: "📝" },
@@ -56,17 +60,49 @@ function getSystemDark() {
 
 export function AppProvider({ children }: Readonly<{ children: React.ReactNode }>) {
   const [lang, setLang] = useState<Lang>("es");
-  const [themeMode, setThemeMode] = useState<ThemeMode>("system");
+  
+  // Inicializa themeMode desde localStorage si existe, para evitar el salto visual
+  const getInitialTheme = (): ThemeMode => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("eco-theme-mode") as ThemeMode | null;
+      if (saved === "dark" || saved === "light" || saved === "system") return saved;
+    }
+    return "system";
+  };
+  
+  const [themeMode, setThemeMode] = useState<ThemeMode>(getInitialTheme);
   const [darkMode, setDarkMode] = useState<boolean>(false);
   const [isHydrated, setIsHydrated] = useState<boolean>(false);
 
+  // Aplicar tema inicial inmediatamente
+  useEffect(() => {
+    const applyInitialTheme = () => {
+      const initialTheme = getInitialTheme();
+      let isDark = false;
+      
+      if (initialTheme === "dark") isDark = true;
+      else if (initialTheme === "light") isDark = false;
+      else isDark = getSystemDark();
+      
+      setDarkMode(isDark);
+      
+      // Aplicar clase dark solo al html
+      if (typeof document !== "undefined") {
+        const html = document.documentElement;
+        if (isDark) {
+          html.classList.add("dark");
+        } else {
+          html.classList.remove("dark");
+        }
+      }
+    };
+    
+    applyInitialTheme();
+  }, []);
+
   // Inicializar estado después de la hidratación
   useEffect(() => {
-    const savedTheme = localStorage.getItem("eco-theme-mode") as ThemeMode | null;
     const savedLang = localStorage.getItem("eco-lang");
-    if (savedTheme === "dark" || savedTheme === "light" || savedTheme === "system") {
-      setThemeMode(savedTheme);
-    }
     if (savedLang === "en" || savedLang === "es") {
       setLang(savedLang);
     }
@@ -76,23 +112,27 @@ export function AppProvider({ children }: Readonly<{ children: React.ReactNode }
   // Sincroniza darkMode según themeMode
   useEffect(() => {
     if (!isHydrated) return;
+    
     let isDark = false;
     if (themeMode === "dark") isDark = true;
     else if (themeMode === "light") isDark = false;
     else isDark = getSystemDark();
+    
     setDarkMode(isDark);
+    
+    // Guarda siempre el valor actualizado
     localStorage.setItem("eco-theme-mode", themeMode);
-  }, [themeMode, isHydrated]);
-
-  // Aplica la clase 'dark' en <html> cuando cambia darkMode
-  useEffect(() => {
-    if (!isHydrated) return;
-    if (darkMode) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
+    
+    // Aplicar clase dark solo al html
+    if (typeof document !== "undefined") {
+      const html = document.documentElement;
+      if (isDark) {
+        html.classList.add("dark");
+      } else {
+        html.classList.remove("dark");
+      }
     }
-  }, [darkMode, isHydrated]);
+  }, [themeMode, isHydrated]);
 
   // Guardar idioma en localStorage
   useEffect(() => {
@@ -102,12 +142,26 @@ export function AppProvider({ children }: Readonly<{ children: React.ReactNode }
 
   // Si está en modo system, escuchar cambios del sistema
   useEffect(() => {
-    if (themeMode !== "system") return;
+    if (themeMode !== "system" || !isHydrated) return;
+    
     const mq = window.matchMedia("(prefers-color-scheme: dark)");
-    const handler = () => setDarkMode(mq.matches);
+    const handler = () => {
+      const isDark = mq.matches;
+      setDarkMode(isDark);
+      
+      if (typeof document !== "undefined") {
+        const html = document.documentElement;
+        if (isDark) {
+          html.classList.add("dark");
+        } else {
+          html.classList.remove("dark");
+        }
+      }
+    };
+    
     mq.addEventListener("change", handler);
     return () => mq.removeEventListener("change", handler);
-  }, [themeMode]);
+  }, [themeMode, isHydrated]);
 
   const contextValue = React.useMemo(() => ({
     lang,

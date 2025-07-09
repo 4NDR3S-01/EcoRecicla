@@ -1,6 +1,8 @@
 "use client";
 import Link from "next/link";
 import { useAppContext } from "@/components/AppProvider";
+import { Button } from "@/components/ui/Button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
 
 const homeTranslations = {
   es: {
@@ -12,6 +14,28 @@ const homeTranslations = {
       { icon: "🌍", title: "Impacto ambiental", desc: "Contribuye activamente al cuidado del planeta." },
       { icon: "🏆", title: "Recompensas", desc: "Gana puntos y premios por reciclar." },
     ],
+    features: {
+      title: "Características Principales",
+      subtitle: "Todo lo que necesitas para una gestión eficiente del reciclaje",
+      items: [
+        { icon: "📊", title: "Estadísticas en Tiempo Real", desc: "Monitorea tu progreso de reciclaje con datos actualizados." },
+        { icon: "🎯", title: "Metas Personalizadas", desc: "Establece objetivos y celebra tus logros." },
+        { icon: "👥", title: "Comunidad", desc: "Conecta con otros recicladores y comparte experiencias." },
+        { icon: "📱", title: "App Móvil", desc: "Accede desde cualquier dispositivo con nuestra app." },
+        { icon: "🏆", title: "Sistema de Puntos", desc: "Gana recompensas por cada acción de reciclaje." },
+        { icon: "🌱", title: "Impacto Ambiental", desc: "Visualiza tu contribución al medio ambiente." },
+      ]
+    },
+    stats: {
+      title: "Nuestro Impacto",
+      subtitle: "Juntos estamos haciendo la diferencia",
+      items: [
+        { number: "10K+", label: "Usuarios Activos" },
+        { number: "50K+", label: "Kg Reciclados" },
+        { number: "100+", label: "Comunidades" },
+        { number: "95%", label: "Satisfacción" },
+      ]
+    }
   },
   en: {
     welcome: "Welcome to EcoRecicla",
@@ -22,6 +46,28 @@ const homeTranslations = {
       { icon: "🌍", title: "Environmental impact", desc: "Actively contribute to caring for the planet." },
       { icon: "🏆", title: "Rewards", desc: "Earn points and prizes for recycling." },
     ],
+    features: {
+      title: "Key Features",
+      subtitle: "Everything you need for efficient recycling management",
+      items: [
+        { icon: "📊", title: "Real-time Statistics", desc: "Monitor your recycling progress with updated data." },
+        { icon: "🎯", title: "Personalized Goals", desc: "Set objectives and celebrate your achievements." },
+        { icon: "👥", title: "Community", desc: "Connect with other recyclers and share experiences." },
+        { icon: "📱", title: "Mobile App", desc: "Access from any device with our app." },
+        { icon: "🏆", title: "Points System", desc: "Earn rewards for each recycling action." },
+        { icon: "🌱", title: "Environmental Impact", desc: "Visualize your contribution to the environment." },
+      ]
+    },
+    stats: {
+      title: "Our Impact",
+      subtitle: "Together we are making a difference",
+      items: [
+        { number: "10K+", label: "Active Users" },
+        { number: "50K+", label: "Kg Recycled" },
+        { number: "100+", label: "Communities" },
+        { number: "95%", label: "Satisfaction" },
+      ]
+    }
   },
 } as const;
 
@@ -31,35 +77,127 @@ export default function Home() {
   const h = homeTranslations[lang];
 
   return (
-    <main className="relative flex flex-col min-h-screen transition-colors duration-500 overflow-x-hidden" role="main">
-      <div className="absolute inset-0 w-full h-full z-0 pointer-events-none bg-gradient-to-br from-green-200/30 via-transparent to-green-400/10 dark:from-green-900/30 dark:via-transparent dark:to-green-900/10" aria-hidden="true" />
-      <section className="flex-1 flex flex-col items-center justify-center w-full px-2 sm:px-4 py-8 md:py-0" aria-labelledby="main-title">
-        <div className="w-full max-w-4xl bg-white/80 dark:bg-gray-900/90 rounded-3xl shadow-2xl backdrop-blur-xl flex flex-col items-center py-10 px-2 sm:px-6 md:px-10 animate-fade-in-up border border-white/30 dark:border-gray-800 transition-all duration-500">
-          <h1 id="main-title" className="text-3xl sm:text-4xl md:text-6xl font-extrabold text-green-800 mb-4 text-center tracking-tight dark:text-green-200 animate-fade-in drop-shadow-lg">
-            {h.welcome}
-          </h1>
-          <p className="text-base sm:text-lg md:text-2xl text-green-900 mb-8 max-w-2xl text-center font-medium dark:text-green-100">
-            {h.description}
-          </p>
-          <Link href="/registro">
-            <span className="inline-block bg-green-600 text-white px-8 sm:px-12 py-3 sm:py-4 rounded-full font-bold shadow-xl hover:bg-green-700 hover:scale-105 focus:scale-105 focus:ring-4 focus:ring-green-400/40 transition-all duration-200 mb-8 text-base sm:text-lg tracking-wide animate-pulse-glow outline-none focus:outline-none">
-              {h.start}
-            </span>
-          </Link>
-          <section className="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-8 mt-6 md:mt-10" aria-label={lang === "es" ? "Beneficios" : "Benefits"}>
-            {h.benefits.map((b, i) => (
-              <article key={b.title} className={`flex flex-col items-center p-6 sm:p-7 bg-white/70 dark:bg-gray-800/80 rounded-2xl shadow-lg hover:shadow-2xl border border-white/20 dark:border-gray-700 backdrop-blur-lg transition-all duration-300 hover:-translate-y-1 hover:scale-105 animate-fade-in-up delay-${200 + i * 100}`}> 
-                <span className="text-4xl sm:text-5xl mb-3 drop-shadow-lg" aria-hidden="true">{b.icon}</span>
-                <h2 className="font-bold text-lg sm:text-xl mb-2 text-green-900 dark:text-green-200 text-center drop-shadow">{b.title}</h2>
-                <p className="text-sm sm:text-base font-semibold text-green-800 text-center dark:text-green-100 opacity-90">{b.desc}</p>
-              </article>
+    <div className="relative min-h-screen">
+      {/* Background gradient */}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-secondary/20 dark:from-primary/10 dark:via-background dark:to-secondary/30" />
+      
+      {/* Main content */}
+      <div className="relative z-10">
+        {/* Hero section */}
+        <section className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
+          <div className="max-w-4xl mx-auto text-center animate-fade-in-up">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground mb-6 leading-tight">
+              {h.welcome}
+            </h1>
+            <p className="text-lg sm:text-xl lg:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">
+              {h.description}
+            </p>
+            <Link href="/registro">
+              <Button size="lg" className="text-lg px-8 py-4">
+                {h.start}
+                <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </Button>
+            </Link>
+          </div>
+        </section>
+
+        {/* Benefits section */}
+        <section className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {h.benefits.map((benefit, index) => (
+              <Card
+                key={benefit.title}
+                className="group hover-lift transition-all duration-300 animate-fade-in-up text-center"
+                style={{ animationDelay: `${index * 100}ms` }}
+              >
+                <CardHeader>
+                  <div className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-300">
+                    {benefit.icon}
+                  </div>
+                  <CardTitle>{benefit.title}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription className="text-base leading-relaxed">
+                    {benefit.desc}
+                  </CardDescription>
+                </CardContent>
+              </Card>
             ))}
-          </section>
+          </div>
+        </section>
+
+        {/* Features section */}
+        <section className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 bg-muted/50">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
+              {h.features.title}
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              {h.features.subtitle}
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {h.features.items.map((feature, index) => (
+              <Card
+                key={feature.title}
+                className="group hover-lift transition-all duration-300 animate-fade-in-up"
+                style={{ animationDelay: `${index * 100}ms` }}
+              >
+                <CardHeader>
+                  <div className="text-3xl mb-4 group-hover:scale-110 transition-transform duration-300">
+                    {feature.icon}
+                  </div>
+                  <CardTitle className="text-lg">{feature.title}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription className="text-sm leading-relaxed">
+                    {feature.desc}
+                  </CardDescription>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </section>
+
+        {/* Stats section */}
+        <section className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
+              {h.stats.title}
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              {h.stats.subtitle}
+            </p>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            {h.stats.items.map((stat, index) => (
+              <div
+                key={stat.label}
+                className="text-center animate-fade-in-up"
+                style={{ animationDelay: `${index * 100}ms` }}
+              >
+                <div className="text-3xl sm:text-4xl font-bold text-primary mb-2">
+                  {stat.number}
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  {stat.label}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
+
+      {/* Footer */}
+      <footer className="relative z-10 mt-auto py-8 text-center text-muted-foreground bg-card border-t">
+        <div className="container mx-auto px-4">
+          <p className="text-sm">
+            {t.copyright()}
+          </p>
         </div>
-      </section>
-      <footer className="w-full text-center py-6 text-green-800 bg-white/90 dark:bg-gray-900/90 dark:text-green-200 border-t border-green-100 dark:border-gray-800 mt-auto">
-        {t.copyright()}
       </footer>
-    </main>
+    </div>
   );
 }
