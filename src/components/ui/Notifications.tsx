@@ -15,6 +15,7 @@ interface Notification {
   type?: 'success' | 'error' | 'info';
 }
 
+// --- Componente Notifications: notificaciones accesibles y en tiempo real ---
 export default function Notifications() {
   const { lang } = useAppContext();
   const t = {

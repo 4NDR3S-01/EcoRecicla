@@ -14,6 +14,7 @@ interface NavigationProps {
   onItemClick?: () => void;
 }
 
+// --- Componente Navigation: navegación accesible y reutilizable para desktop y móvil ---
 export function Navigation({ items, className, onItemClick }: NavigationProps) {
   return (
     <nav className={cn("flex items-center space-x-6", className)}>

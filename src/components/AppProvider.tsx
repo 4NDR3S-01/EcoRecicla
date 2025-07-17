@@ -4,6 +4,7 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 type Lang = "es" | "en";
 export type ThemeMode = "light" | "dark" | "system";
 
+// Traducciones globales para la app
 const translations = {
   es: {
     menu: [
@@ -31,6 +32,7 @@ const translations = {
   },
 } as const;
 
+// Tipos y contexto global para idioma, tema y preferencias
 export type Translations = typeof translations;
 
 interface AppContextType {
@@ -45,6 +47,7 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
+// Hook para consumir el contexto global
 export function useAppContext() {
   const ctx = useContext(AppContext);
   if (!ctx) throw new Error("useAppContext debe usarse dentro de AppProvider");
@@ -58,6 +61,7 @@ function getSystemDark() {
   return false;
 }
 
+// Proveedor global de la app con lógica de idioma y tema
 export function AppProvider({ children }: Readonly<{ children: React.ReactNode }>) {
   const [lang, setLang] = useState<Lang>("es");
   

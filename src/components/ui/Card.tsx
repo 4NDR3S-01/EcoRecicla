@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 
 interface CardProps extends React.HTMLAttributes<HTMLDivElement> {}
 
+// --- Componente Card reutilizable y accesible para layouts y secciones ---
 const Card = React.forwardRef<HTMLDivElement, CardProps>(
   ({ className, ...props }, ref) => (
     <div
@@ -80,5 +81,7 @@ const CardFooter = React.forwardRef<HTMLDivElement, CardFooterProps>(
   )
 );
 CardFooter.displayName = "CardFooter";
+
+// --- Subcomponentes de Card para estructura y claridad ---
 
 export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent }; 

@@ -7,6 +7,7 @@ import { Button } from "./ui/Button";
 import Notifications from "./ui/Notifications";
 import { RecyclingModal } from "./ui/RecyclingModal";
 
+// Traducciones para el sidebar
 const sidebarTranslations = {
   es: {
     dashboard: "Panel de Control",
@@ -38,11 +39,13 @@ const sidebarTranslations = {
   },
 } as const;
 
+// Layout principal del dashboard con sidebar y accesibilidad mejorada
 export default function DashboardLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Contexto global de idioma y tema
   const { lang, setLang, setThemeMode, themeMode } = useAppContext();
   const t = sidebarTranslations[lang];
   const router = useRouter();
@@ -58,38 +61,29 @@ export default function DashboardLayout({
     setSidebarOpen(false);
   }, [pathname]);
 
+  // Autenticación y carga de perfil
   useEffect(() => {
-    // Verificar autenticación
     const getUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       setUser(user);
-      
       if (!user) {
         router.push('/login');
         setLoading(false);
         return;
       }
-
-      // Cargar perfil del usuario
       try {
         const { data: profile } = await supabase
           .from('user_profiles')
           .select('*')
           .eq('id', user.id)
           .single();
-
-        if (profile) {
-          setUserProfile(profile);
-        }
+        if (profile) setUserProfile(profile);
       } catch (error) {
         console.error('Error loading user profile:', error);
       }
-      
       setLoading(false);
     };
-
     getUser();
-
     // Escuchar cambios de autenticación
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
@@ -100,15 +94,16 @@ export default function DashboardLayout({
         }
       }
     );
-
     return () => subscription.unsubscribe();
   }, [router]);
 
+  // Logout seguro
   const handleLogout = async () => {
     await supabase.auth.signOut();
     router.push('/');
   };
 
+  // Ítems de navegación
   const navigationItems = [
     { href: "/dashboard", label: t.dashboard, icon: "📊" },
     { href: "/estadisticas", label: t.statistics, icon: "📈" },
@@ -118,17 +113,15 @@ export default function DashboardLayout({
     { href: "/ayuda", label: t.help, icon: "❓" },
   ];
 
+  // Loader accesible
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center" role="status" aria-live="polite">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
       </div>
     );
   }
-
-  if (!user) {
-    return null;
-  }
+  if (!user) return null;
 
   return (
     <div className="min-h-screen bg-background flex">

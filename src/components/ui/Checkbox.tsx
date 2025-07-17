@@ -6,6 +6,7 @@ interface CheckboxProps extends React.InputHTMLAttributes<HTMLInputElement> {
   error?: string;
 }
 
+// --- Componente Checkbox reutilizable y accesible ---
 const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
   ({ className, label, error, id, name, ...props }, ref) => {
     const checkboxId = id ?? (name ? `checkbox-${name}` : undefined);

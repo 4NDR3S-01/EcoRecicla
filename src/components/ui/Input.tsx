@@ -6,10 +6,10 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   error?: string;
 }
 
+// --- Componente Input reutilizable y accesible ---
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ({ className, type, label, error, id, name, ...props }, ref) => {
     const inputId = id ?? (name ? `input-${name}` : undefined);
-    
     return (
       <div className="space-y-2">
         {label && (
@@ -36,7 +36,6 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     );
   }
 );
-
 Input.displayName = "Input";
 
 export { Input }; 

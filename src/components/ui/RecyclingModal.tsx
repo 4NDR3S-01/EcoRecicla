@@ -10,7 +10,9 @@ interface RecyclingModalProps {
   readonly onSuccess: () => void;
 }
 
+// --- Componente RecyclingModal: modal accesible para registrar reciclaje ---
 export function RecyclingModal({ isOpen, onClose, onSuccess }: RecyclingModalProps) {
+  // --- Lógica de formulario, feedback visual y accesibilidad ---
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
     material_type: "plastic",
