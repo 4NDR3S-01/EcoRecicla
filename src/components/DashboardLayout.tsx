@@ -56,6 +56,10 @@ export default function DashboardLayout({
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showRecyclingModal, setShowRecyclingModal] = useState(false);
 
+  // Detectar si la ruta es híbrida
+  const hybridRoutes = ["/ayuda", "/busqueda"];
+  const isHybrid = hybridRoutes.some(route => pathname?.startsWith(route));
+
   // Cerrar sidebar móvil al navegar
   useEffect(() => {
     setSidebarOpen(false);
@@ -66,7 +70,7 @@ export default function DashboardLayout({
     const getUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       setUser(user);
-      if (!user) {
+      if (!user && !isHybrid) {
         router.push('/login');
         setLoading(false);
         return;
@@ -75,7 +79,7 @@ export default function DashboardLayout({
         const { data: profile } = await supabase
           .from('user_profiles')
           .select('*')
-          .eq('id', user.id)
+          .eq('id', user?.id)
           .single();
         if (profile) setUserProfile(profile);
       } catch (error) {
@@ -87,20 +91,20 @@ export default function DashboardLayout({
     // Escuchar cambios de autenticación
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        if (event === 'SIGNED_OUT' || !session) {
+        if ((event === 'SIGNED_OUT' || !session) && !isHybrid) {
           router.push('/login');
         } else {
-          setUser(session.user);
+          setUser(session?.user ?? null);
         }
       }
     );
     return () => subscription.unsubscribe();
-  }, [router]);
+  }, [router, isHybrid]);
 
   // Logout seguro
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    router.push('/');
+    window.location.href = '/'; // Redirige a home y fuerza recarga
   };
 
   // Ítems de navegación
@@ -121,7 +125,7 @@ export default function DashboardLayout({
       </div>
     );
   }
-  if (!user) return null;
+  if (!user && !isHybrid) return null;
 
   return (
     <div className="min-h-screen bg-background flex">
