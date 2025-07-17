@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { AppProvider } from "../components/AppProvider";
-import Header from "../components/Header";
+import LayoutWrapper from "../components/LayoutWrapper";
 
 export const metadata: Metadata = {
   title: "EcoRecicla",
@@ -18,12 +18,9 @@ export default function RootLayout({
       <head />
       <body className="antialiased bg-background text-foreground font-sans transition-colors">
         <AppProvider>
-          <div className="min-h-screen flex flex-col">
-            <Header />
-            <main className="flex-1">
-              {children}
-            </main>
-          </div>
+          <LayoutWrapper>
+            {children}
+          </LayoutWrapper>
         </AppProvider>
       </body>
     </html>

@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/Input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
 import { useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import { useRouter } from "next/navigation";
 
 const loginTranslations = {
   es: {
@@ -39,7 +38,6 @@ export default function LoginPage() {
   const [form, setForm] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const router = useRouter();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -49,15 +47,90 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
     setError("");
-    const { error } = await supabase.auth.signInWithPassword({
-      email: form.email,
-      password: form.password,
-    });
-    setLoading(false);
-    if (error) {
-      setError(t.error);
-    } else {
-      router.push("/"); // Redirige al home o dashboard
+    
+    console.log("🔍 Iniciando proceso de login...");
+    console.log("📧 Email:", form.email);
+    
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: form.email,
+        password: form.password,
+      });
+      
+      console.log("📊 Respuesta de Supabase:", { data, error });
+      
+      if (error) {
+        console.error("❌ Error de login:", error.message);
+        setError(`${t.error} - ${error.message}`);
+      } else {
+        console.log("✅ Login exitoso, verificando perfil...");
+        
+        // Verificar si el usuario tiene perfil completo
+        if (data.user) {
+          const { data: profile } = await supabase
+            .from('user_profiles')
+            .select('*')
+            .eq('id', data.user.id)
+            .single();
+          
+          if (!profile) {
+            console.log("📝 Creando perfil faltante...");
+            // Crear perfil básico si no existe (para usuarios registrados antes de esta actualización)
+            await supabase.from('user_profiles').insert({
+              id: data.user.id,
+              email: data.user.email!,
+              full_name: data.user.user_metadata?.full_name || '',
+              phone: data.user.user_metadata?.phone || null,
+              location: data.user.user_metadata?.location || null,
+            });
+            
+            // Crear preferencias por defecto
+            await supabase.from('user_preferences').insert({
+              user_id: data.user.id,
+              email_updates: true,
+              push_notifications: true,
+              weekly_report: false,
+              public_profile: true,
+              show_stats: true,
+              data_sharing: false,
+            });
+            
+            // Crear metas por defecto
+            await supabase.from('recycling_goals').insert({
+              user_id: data.user.id,
+              monthly_goal: 60,
+              weekly_goal: 15,
+              daily_reminder: true,
+            });
+            
+            // Crear puntos iniciales
+            await supabase.from('user_points').insert({
+              user_id: data.user.id,
+              total_points: 0,
+              current_streak: 0,
+              longest_streak: 0,
+              last_activity_date: null,
+            });
+          }
+        }
+        
+        // Verificar que la sesión se estableció
+        const { data: session } = await supabase.auth.getSession();
+        console.log("🔐 Sesión actual:", session);
+        
+        if (session.session) {
+          console.log("🎯 Redirigiendo al dashboard...");
+          window.location.href = "/dashboard";
+        } else {
+          console.error("❌ No se pudo establecer la sesión");
+          setError("No se pudo establecer la sesión. Intenta de nuevo.");
+        }
+      }
+    } catch (err) {
+      console.error("💥 Error inesperado:", err);
+      setError("Error inesperado. Intenta de nuevo.");
+    } finally {
+      setLoading(false);
     }
   };
 

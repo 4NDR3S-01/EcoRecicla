@@ -81,8 +81,7 @@ export function AppProvider({ children }: Readonly<{ children: React.ReactNode }
       let isDark = false;
       
       if (initialTheme === "dark") isDark = true;
-      else if (initialTheme === "light") isDark = false;
-      else isDark = getSystemDark();
+      else if (initialTheme === "system") isDark = getSystemDark();
       
       setDarkMode(isDark);
       
@@ -115,8 +114,7 @@ export function AppProvider({ children }: Readonly<{ children: React.ReactNode }
     
     let isDark = false;
     if (themeMode === "dark") isDark = true;
-    else if (themeMode === "light") isDark = false;
-    else isDark = getSystemDark();
+    else if (themeMode === "system") isDark = getSystemDark();
     
     setDarkMode(isDark);
     
