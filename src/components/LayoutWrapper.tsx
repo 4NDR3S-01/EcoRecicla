@@ -26,7 +26,7 @@ export default function LayoutWrapper({
     return () => { mounted = false; };
   }, []);
   // Rutas que usan el layout del dashboard
-  const dashboardRoutes = ['/dashboard', '/estadisticas', '/configuracion', '/comunidad'];
+  const dashboardRoutes = ['/dashboard', '/estadisticas', '/configuracion', '/comunidad', '/recompensas'];
   const hybridRoutes = ['/ayuda', '/busqueda'];
   const shouldUseDashboardLayout = dashboardRoutes.some(route => pathname?.startsWith(route));
   const isHybrid = hybridRoutes.some(route => pathname?.startsWith(route));

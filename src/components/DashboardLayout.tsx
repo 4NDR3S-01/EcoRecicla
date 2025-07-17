@@ -22,6 +22,7 @@ const sidebarTranslations = {
     darkMode: "Modo Oscuro",
     english: "English",
     spanish: "Español",
+    rewards: "Recompensas",
   },
   en: {
     dashboard: "Dashboard",
@@ -36,6 +37,7 @@ const sidebarTranslations = {
     darkMode: "Dark Mode",
     english: "English",
     spanish: "Español",
+    rewards: "Rewards",
   },
 } as const;
 
@@ -113,6 +115,7 @@ export default function DashboardLayout({
     { href: "/estadisticas", label: t.statistics, icon: "📈" },
     { href: "/comunidad", label: t.community, icon: "👥" },
     { href: "/busqueda", label: t.search, icon: "🔍" },
+    { href: "/recompensas", label: t.rewards, icon: "🏆" },
     { href: "/configuracion", label: t.settings, icon: "⚙️" },
     { href: "/ayuda", label: t.help, icon: "❓" },
   ];
