@@ -38,15 +38,30 @@ export default function LoginPage() {
   const [form, setForm] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<{ [key: string]: string }>({});
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+    setFieldErrors({ ...fieldErrors, [e.target.name]: "" }); // Limpiar error al escribir
+  };
+
+  const validateForm = (): boolean => {
+    const errors: { [key: string]: string } = {};
+    if (!form.email.includes("@")) {
+      errors.email = lang === "es" ? "Ingresa un correo válido." : "Enter a valid email.";
+    }
+    if (!form.password) {
+      errors.password = lang === "es" ? "La contraseña es obligatoria." : "Password is required.";
+    }
+    setFieldErrors(errors);
+    return Object.keys(errors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setError("");
+    if (!validateForm()) return;
+    setLoading(true);
     
     console.log("🔍 Iniciando proceso de login...");
     console.log("📧 Email:", form.email);
@@ -153,6 +168,9 @@ export default function LoginPage() {
               onChange={handleChange}
               required
             />
+            {fieldErrors.email && (
+              <div className="text-xs text-destructive mt-1" aria-live="polite">{fieldErrors.email}</div>
+            )}
             <Input
               type="password"
               label={t.password}
@@ -162,6 +180,9 @@ export default function LoginPage() {
               onChange={handleChange}
               required
             />
+            {fieldErrors.password && (
+              <div className="text-xs text-destructive mt-1" aria-live="polite">{fieldErrors.password}</div>
+            )}
             <Button className="w-full" size="lg" type="submit" disabled={loading}>
               {loading ? "..." : t.login}
             </Button>

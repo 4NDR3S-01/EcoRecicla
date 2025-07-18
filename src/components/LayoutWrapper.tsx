@@ -2,7 +2,6 @@
 import { usePathname } from "next/navigation";
 import Header from "./Header";
 import DashboardLayout from "./DashboardLayout";
-import { useAppContext } from "./AppProvider";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 
@@ -32,9 +31,9 @@ export default function LayoutWrapper({
   const isHybrid = hybridRoutes.some(route => pathname?.startsWith(route));
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" role="status" aria-live="polite">
+      <output className="min-h-screen flex items-center justify-center" aria-live="polite">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
+      </output>
     );
   }
   if (shouldUseDashboardLayout || (isHybrid && user)) {

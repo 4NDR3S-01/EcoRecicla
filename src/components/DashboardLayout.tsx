@@ -123,9 +123,9 @@ export default function DashboardLayout({
   // Loader accesible
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" role="status" aria-live="polite">
+      <output className="min-h-screen flex items-center justify-center" aria-live="polite">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
+      </output>
     );
   }
   if (!user && !isHybrid) return null;
@@ -145,9 +145,16 @@ export default function DashboardLayout({
 
       {/* Overlay oscuro en móvil */}
       {sidebarOpen && (
-        <div
+        <button
+          type="button"
           className="fixed inset-0 z-40 bg-black/40 md:hidden"
+          aria-label="Cerrar menú"
+          tabIndex={0}
           onClick={() => setSidebarOpen(false)}
+          onKeyDown={e => {
+            if (e.key === 'Enter' || e.key === ' ') setSidebarOpen(false);
+          }}
+          style={{ cursor: 'pointer' }}
         />
       )}
 
@@ -224,11 +231,10 @@ export default function DashboardLayout({
               onClick={() => setShowRecyclingModal(true)}
               aria-label="Registrar reciclaje"
               tabIndex={0}
-              role="button"
               onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') setShowRecyclingModal(true); }}
             >
               <span className="text-xl mr-3">♻️</span>
-              Registrar Reciclaje
+              <span className="ml-1">Registrar Reciclaje</span>
             </button>
             <Button
               variant="ghost"

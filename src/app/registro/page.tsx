@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { useRouter } from "next/navigation";
+import zxcvbn from "zxcvbn";
 
 const registerTranslations = {
   es: {
@@ -136,12 +137,11 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [passwordScore, setPasswordScore] = useState(0);
+  const [passwordFeedback, setPasswordFeedback] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<{ [key: string]: string }>({});
 
   // Verificar si Supabase está configurado
-  const isSupabaseConfigured = !!(
-    process.env.NEXT_PUBLIC_SUPABASE_URL && 
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  );
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
@@ -159,154 +159,34 @@ export default function RegisterPage() {
       ...form,
       [name]: newValue,
     });
+    setFieldErrors({ ...fieldErrors, [name]: "" }); // Limpiar error al escribir
+    // Barra de fortaleza de contraseña
+    if (name === "password") {
+      const result = zxcvbn(value);
+      setPasswordScore(result.score);
+      setPasswordFeedback(result.feedback.suggestions[0] || "");
+    }
   };
 
   const validateForm = (): string | null => {
+    const errors: { [key: string]: string } = {};
     if (!form.fullName.trim()) {
-      return t.nameRequired;
+      errors.fullName = t.nameRequired;
     }
     if (!form.email.includes("@")) {
-      return t.emailInvalid;
+      errors.email = t.emailInvalid;
     }
     if (form.password.length < 6) {
-      return t.passwordMinLength;
+      errors.password = t.passwordMinLength;
     }
     if (form.password !== form.confirmPassword) {
-      return t.passwordMismatch;
+      errors.confirmPassword = t.passwordMismatch;
+    }
+    setFieldErrors(errors);
+    if (Object.keys(errors).length > 0) {
+      return "Por favor corrige los errores indicados.";
     }
     return null;
-  };
-
-  const updateOrCreateProfile = async (userId: string) => {
-    const { data: existingProfile } = await supabase
-      .from("user_profiles")
-      .select("id")
-      .eq("id", userId)
-      .single();
-
-    if (existingProfile) {
-      const { error } = await supabase
-        .from("user_profiles")
-        .update({
-          full_name: form.fullName,
-          phone: form.phone || null,
-          location: form.location || null,
-        })
-        .eq("id", userId);
-      if (error) throw error;
-    } else {
-      const { error } = await supabase.from("user_profiles").insert({
-        id: userId,
-        email: form.email,
-        full_name: form.fullName,
-        phone: form.phone || null,
-        location: form.location || null,
-      });
-      if (error) throw error;
-    }
-  };
-
-  const updateOrCreatePreferences = async (userId: string) => {
-    const { data: existingPrefs } = await supabase
-      .from("user_preferences")
-      .select("user_id")
-      .eq("user_id", userId)
-      .single();
-
-    const prefsData = {
-      weekly_report: form.weeklyReport,
-      public_profile: form.publicProfile,
-      show_stats: form.publicProfile,
-    };
-
-    if (existingPrefs) {
-      const { error } = await supabase
-        .from("user_preferences")
-        .update(prefsData)
-        .eq("user_id", userId);
-      if (error) throw error;
-    } else {
-      const { error } = await supabase.from("user_preferences").insert({
-        user_id: userId,
-        ...prefsData,
-        push_notifications: true,
-        data_sharing: false,
-      });
-      if (error) throw error;
-    }
-  };
-
-  const updateOrCreateGoals = async (userId: string) => {
-    const { data: existingGoals } = await supabase
-      .from("recycling_goals")
-      .select("user_id")
-      .eq("user_id", userId)
-      .single();
-
-    const goalsData = {
-      monthly_goal: form.monthlyGoal,
-      weekly_goal: form.weeklyGoal,
-      daily_reminder: form.dailyReminder,
-    };
-
-    if (existingGoals) {
-      const { error } = await supabase
-        .from("recycling_goals")
-        .update(goalsData)
-        .eq("user_id", userId);
-      if (error) throw error;
-    } else {
-      const { error } = await supabase.from("recycling_goals").insert({
-        user_id: userId,
-        ...goalsData,
-      });
-      if (error) throw error;
-    }
-  };
-
-  const ensureUserPoints = async (userId: string) => {
-    const { data: existingPoints } = await supabase
-      .from("user_points")
-      .select("user_id")
-      .eq("user_id", userId)
-      .single();
-
-    if (!existingPoints) {
-      const { error } = await supabase.from("user_points").insert({
-        user_id: userId,
-        total_points: 0,
-        current_streak: 0,
-        longest_streak: 0,
-        last_activity_date: null,
-      });
-      if (error) throw error;
-    }
-  };
-
-  const createUserProfile = async (userId: string) => {
-    try {
-      console.log("🔍 Configurando perfil para usuario:", userId);
-      
-      // Esperar un poco para que el trigger automático termine
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Procesar cada sección por separado
-      await updateOrCreateProfile(userId);
-      console.log("✅ Perfil procesado");
-
-      await updateOrCreatePreferences(userId);
-      console.log("✅ Preferencias procesadas");
-
-      await updateOrCreateGoals(userId);
-      console.log("✅ Metas procesadas");
-
-      await ensureUserPoints(userId);
-      console.log("✅ Puntos verificados");
-
-    } catch (error) {
-      console.error("❌ Error configurando perfil:", error);
-      throw error;
-    }
   };
 
   const getErrorMessage = (error: any): string => {
@@ -439,6 +319,9 @@ export default function RegisterPage() {
                   onChange={handleChange}
                   required
                 />
+                {fieldErrors.fullName && (
+                  <div className="text-xs text-destructive mt-1" aria-live="polite">{fieldErrors.fullName}</div>
+                )}
                 <Input
                   type="email"
                   label={t.personal.email}
@@ -448,6 +331,9 @@ export default function RegisterPage() {
                   onChange={handleChange}
                   required
                 />
+                {fieldErrors.email && (
+                  <div className="text-xs text-destructive mt-1" aria-live="polite">{fieldErrors.email}</div>
+                )}
                 <Input
                   type="tel"
                   label={t.personal.phone}
@@ -456,6 +342,9 @@ export default function RegisterPage() {
                   value={form.phone}
                   onChange={handleChange}
                 />
+                {fieldErrors.phone && (
+                  <div className="text-xs text-destructive mt-1" aria-live="polite">{fieldErrors.phone}</div>
+                )}
                 <Input
                   type="text"
                   label={t.personal.location}
@@ -464,6 +353,9 @@ export default function RegisterPage() {
                   value={form.location}
                   onChange={handleChange}
                 />
+                {fieldErrors.location && (
+                  <div className="text-xs text-destructive mt-1" aria-live="polite">{fieldErrors.location}</div>
+                )}
               </div>
             </div>
 
@@ -473,15 +365,55 @@ export default function RegisterPage() {
                 🔐 {t.account.title}
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Input
-                  type="password"
-                  label={t.account.password}
-                  name="password"
-                  placeholder="••••••••"
-                  value={form.password}
-                  onChange={handleChange}
-                  required
-                />
+                <div>
+                  <Input
+                    type="password"
+                    label={t.account.password}
+                    name="password"
+                    placeholder="••••••••"
+                    value={form.password}
+                    onChange={handleChange}
+                    required
+                  />
+                  {/* Reglas de contraseña */}
+                  <ul className="text-xs text-muted-foreground mt-1 mb-1 pl-4 list-disc">
+                    <li>Mínimo 6 caracteres</li>
+                    <li>Evita usar datos personales</li>
+                    <li>Mezcla mayúsculas, minúsculas, números y símbolos</li>
+                  </ul>
+                  {fieldErrors.password && (
+                    <div className="text-xs text-destructive mt-1" aria-live="polite">{fieldErrors.password}</div>
+                  )}
+                  {/* Barra de fortaleza de contraseña */}
+                  {form.password && (
+                    <div className="mt-2" aria-live="polite">
+                      <div className="h-2 w-full rounded bg-muted flex">
+                        <div
+                          className={`h-2 rounded transition-all duration-300 ${
+                            passwordScore === 0 ? "w-1/5 bg-red-500" :
+                            passwordScore === 1 ? "w-2/5 bg-orange-500" :
+                            passwordScore === 2 ? "w-3/5 bg-yellow-500" :
+                            passwordScore === 3 ? "w-4/5 bg-green-400" :
+                            "w-full bg-green-600"}
+                          `}
+                          style={{ minWidth: "8%" }}
+                        />
+                      </div>
+                      <div className="text-xs mt-1 text-foreground">
+                        {[
+                          "Muy débil",
+                          "Débil",
+                          "Aceptable",
+                          "Fuerte",
+                          "Muy fuerte"
+                        ][passwordScore]}
+                        {passwordFeedback && (
+                          <span className="ml-2 text-muted-foreground">- {passwordFeedback}</span>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
                 <Input
                   type="password"
                   label={t.account.confirmPassword}
@@ -491,6 +423,9 @@ export default function RegisterPage() {
                   onChange={handleChange}
                   required
                 />
+                {fieldErrors.confirmPassword && (
+                  <div className="text-xs text-destructive mt-1" aria-live="polite">{fieldErrors.confirmPassword}</div>
+                )}
               </div>
             </div>
 
@@ -510,6 +445,9 @@ export default function RegisterPage() {
                   min="1"
                   max="1000"
                 />
+                {fieldErrors.monthlyGoal && (
+                  <div className="text-xs text-destructive mt-1" aria-live="polite">{fieldErrors.monthlyGoal}</div>
+                )}
                 <Input
                   type="number"
                   label={t.goals.weeklyGoal}
@@ -520,6 +458,9 @@ export default function RegisterPage() {
                   min="1"
                   max="500"
                 />
+                {fieldErrors.weeklyGoal && (
+                  <div className="text-xs text-destructive mt-1" aria-live="polite">{fieldErrors.weeklyGoal}</div>
+                )}
               </div>
               <Checkbox
                 name="dailyReminder"
@@ -541,12 +482,18 @@ export default function RegisterPage() {
                   onChange={handleChange}
                   label={t.preferences.weeklyReport}
                 />
+                {fieldErrors.weeklyReport && (
+                  <div className="text-xs text-destructive mt-1" aria-live="polite">{fieldErrors.weeklyReport}</div>
+                )}
                 <Checkbox
                   name="publicProfile"
                   checked={form.publicProfile}
                   onChange={handleChange}
                   label={t.preferences.publicProfile}
                 />
+                {fieldErrors.publicProfile && (
+                  <div className="text-xs text-destructive mt-1" aria-live="polite">{fieldErrors.publicProfile}</div>
+                )}
               </div>
             </div>
 

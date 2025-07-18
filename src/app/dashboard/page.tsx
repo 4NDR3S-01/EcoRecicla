@@ -117,6 +117,7 @@ interface Achievement {
   icon: string;
   completed: boolean;
   progress?: number;
+  unlocked_at?: string;
 }
 
 export default function DashboardPage() {
@@ -186,15 +187,6 @@ export default function DashboardPage() {
         title: "¡Nuevo logro!",
         body: "Has reciclado más de 10kg. ¡Sigue así! 🎉"
       });
-    }
-
-    // Notificación por email
-    if (prefs?.email_updates && totalRecycled >= 10) {
-      await sendEmail(
-        userEmail,
-        "¡Nuevo logro en EcoRecicla!",
-        "Has reciclado más de 10kg. ¡Sigue así! 🎉"
-      );
     }
   };
 
