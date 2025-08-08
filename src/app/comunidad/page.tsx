@@ -1,10 +1,9 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useAppContext } from "@/components/AppProvider";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
 import { supabase } from "@/lib/supabaseClient";
-import { useRef } from "react";
 
 const communityTranslations = {
   es: {
@@ -73,6 +72,7 @@ interface Challenge {
   daysLeft: number;
   progress: number;
   reward: string;
+  alreadyJoined?: boolean;
 }
 
 interface Leader {
@@ -98,6 +98,7 @@ interface Event {
   time: string;
   attendees: number;
   description: string;
+  alreadyRegistered?: boolean;
 }
 
 export default function CommunityPage() {
@@ -181,7 +182,7 @@ export default function CommunityPage() {
         const totalProgress = (participantsData || []).reduce((sum: number, p: any) => sum + (p.progress_kg || 0), 0);
         const progress = challenge.goal_kg > 0 ? Math.min(100, Math.round((totalProgress / challenge.goal_kg) * 100)) : 0;
         // Verificar si el usuario ya está inscrito
-        const alreadyJoined = userId && (participantsData || []).some((p: any) => p.user_id === userId);
+        const alreadyJoined = !!userId && (participantsData || []).some((p: any) => p.user_id === userId);
         return {
           id: challenge.id,
           title: challenge.title,
@@ -233,7 +234,7 @@ export default function CommunityPage() {
       if (currentUserProfile && !leadersList.find(l => l.id === currentUserId)) {
         leadersList.push({
           id: currentUserProfile.id,
-          name: currentUserProfile.full_name || 'Tú',
+          name: currentUserProfile.full_name ? currentUserProfile.full_name : 'Tú',
           points: currentUserProfile.total_points || 0,
           recycled: currentUserProfile.total_recycled_kg || 0,
           avatar: "🌟",
@@ -292,7 +293,7 @@ export default function CommunityPage() {
           .select('user_id', { count: 'exact', head: false })
           .eq('event_id', event.id);
         // Verificar si el usuario ya está inscrito
-        const alreadyRegistered = userId && (attendeesData || []).some((a: any) => a.user_id === userId);
+        const alreadyRegistered = !!userId && (attendeesData || []).some((a: any) => a.user_id === userId);
         return {
           id: event.id,
           title: event.title,
@@ -425,7 +426,6 @@ export default function CommunityPage() {
                             onClick={() => handleJoinChallenge(challenge.id)}
                             aria-label={`Unirse al desafío ${challenge.title}`}
                             tabIndex={0}
-                            role="button"
                             onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') handleJoinChallenge(challenge.id); }}
                             disabled={challenge.alreadyJoined}
                           >
@@ -513,7 +513,6 @@ export default function CommunityPage() {
                             onClick={() => handleRegisterEvent(event.id)}
                             aria-label={`Registrarse al evento ${event.title}`}
                             tabIndex={0}
-                            role="button"
                             onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') handleRegisterEvent(event.id); }}
                             disabled={event.alreadyRegistered}
                           >

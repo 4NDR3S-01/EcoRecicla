@@ -385,34 +385,42 @@ export default function RegisterPage() {
                     <div className="text-xs text-destructive mt-1" aria-live="polite">{fieldErrors.password}</div>
                   )}
                   {/* Barra de fortaleza de contraseña */}
-                  {form.password && (
-                    <div className="mt-2" aria-live="polite">
-                      <div className="h-2 w-full rounded bg-muted flex">
-                        <div
-                          className={`h-2 rounded transition-all duration-300 ${
-                            passwordScore === 0 ? "w-1/5 bg-red-500" :
-                            passwordScore === 1 ? "w-2/5 bg-orange-500" :
-                            passwordScore === 2 ? "w-3/5 bg-yellow-500" :
-                            passwordScore === 3 ? "w-4/5 bg-green-400" :
-                            "w-full bg-green-600"}
-                          `}
-                          style={{ minWidth: "8%" }}
-                        />
+                  {form.password && (() => {
+                    let passwordStrengthClass = "";
+                    if (passwordScore === 0) {
+                      passwordStrengthClass = "w-1/5 bg-red-500";
+                    } else if (passwordScore === 1) {
+                      passwordStrengthClass = "w-2/5 bg-orange-500";
+                    } else if (passwordScore === 2) {
+                      passwordStrengthClass = "w-3/5 bg-yellow-500";
+                    } else if (passwordScore === 3) {
+                      passwordStrengthClass = "w-4/5 bg-green-400";
+                    } else {
+                      passwordStrengthClass = "w-full bg-green-600";
+                    }
+                    return (
+                      <div className="mt-2" aria-live="polite">
+                        <div className="h-2 w-full rounded bg-muted flex">
+                          <div
+                            className={`h-2 rounded transition-all duration-300 ${passwordStrengthClass}`}
+                            style={{ minWidth: "8%" }}
+                          />
+                        </div>
+                        <div className="text-xs mt-1 text-foreground">
+                          {[
+                            "Muy débil",
+                            "Débil",
+                            "Aceptable",
+                            "Fuerte",
+                            "Muy fuerte"
+                          ][passwordScore]}
+                          {passwordFeedback && (
+                            <span className="ml-2 text-muted-foreground">- {passwordFeedback}</span>
+                          )}
+                        </div>
                       </div>
-                      <div className="text-xs mt-1 text-foreground">
-                        {[
-                          "Muy débil",
-                          "Débil",
-                          "Aceptable",
-                          "Fuerte",
-                          "Muy fuerte"
-                        ][passwordScore]}
-                        {passwordFeedback && (
-                          <span className="ml-2 text-muted-foreground">- {passwordFeedback}</span>
-                        )}
-                      </div>
-                    </div>
-                  )}
+                    );
+                  })()}
                 </div>
                 <Input
                   type="password"
